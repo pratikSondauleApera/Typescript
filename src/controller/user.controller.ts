@@ -1,7 +1,7 @@
 import { PrismaClient, Role } from "@prisma/client";
 import { RequestHandler } from "express";
 import bcrypt from "bcryptjs"
-import jwt from "jsonwebtoken";
+import jwt from "jsonwebtoken"
 
 const prisma = new PrismaClient()
 
@@ -65,7 +65,7 @@ export const signIn: RequestHandler = async (req, res) => {
         })
 
         if (!user) {
-            res.status(404).json({ msg: "User does not exist" })
+            res.status(404).json({ error: "User does not exist" })
         }
 
         const isMatch = await bcrypt.compare(password, user!.password);
@@ -79,7 +79,13 @@ export const signIn: RequestHandler = async (req, res) => {
             role: user?.role
         }
 
-        const token = jwt.sign(payload, "sothisisasecretkeyformernproject", {
+        const JWT_SECRET = process.env.JWT_SECRET;
+
+        if (!JWT_SECRET) {
+            throw new Error('JWT_SECRET is not defined');
+        }
+
+        const token = jwt.sign(payload, JWT_SECRET, {
             expiresIn: "1h"
         });
 
