@@ -86,7 +86,7 @@ export const signIn: RequestHandler = async (req, res) => {
         }
 
         const token = jwt.sign(payload, JWT_SECRET, {
-            expiresIn: "10m"
+            expiresIn: "7d"
         });
 
         return res.status(200).json({ msg: "Login successfully", token })
