@@ -14,13 +14,26 @@ datasource db {
 }
 
 model User {
-  id        String   @id @default(cuid())
+  id        String     @id @default(cuid())
   firstName String
   lastName  String
-  email     String   @unique
+  email     String     @unique
   password  String
   role      Role
-  createdAt DateTime @default(now())
+  createdAt DateTime   @default(now())
+  BlogPost  BlogPost[]
+}
+
+model BlogPost {
+  id        String    @id @default(cuid())
+  author    User      @relation(fields: [authorId], references: [id])
+  authorId  String
+  title     String
+  image     String?
+  content   String
+  createdAt DateTime  @default(now())
+  updatedAt DateTime? @updatedAt
+  deletedAt DateTime?
 }
 
 enum Role {
