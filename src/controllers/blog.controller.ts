@@ -114,7 +114,8 @@ export const getUserBlog: RequestHandler = async (req, res) => {
     try {
         const getUserBlog = await prisma.blogPost.findMany({
             where: {
-                authorId: getUser.id
+                authorId: getUser.id,
+                deletedAt: null
             }
         })
 
@@ -122,5 +123,35 @@ export const getUserBlog: RequestHandler = async (req, res) => {
 
     } catch (error) {
         return res.status(500).json({ msg: "Something went wrong while fetching blog", error })
+    }
+}
+
+export const deleteBlog: RequestHandler = async (req, res) => {
+    const blogId = req.params.id
+
+    const getBlog = await prisma.blogPost.findUnique({
+        where: {
+            id: blogId
+        }
+    })
+
+    if (!getBlog) {
+        return res.status(404).json({ error: "Blog not found" })
+    }
+
+    try {
+        const deleteBlog = await prisma.blogPost.update({
+            where: {
+                id: getBlog.id
+            },
+            data: {
+                deletedAt: new Date()
+            }
+        })
+
+        return res.status(200).json({ msg: "Deleted blog successfully", deleteBlog })
+
+    } catch (error) {
+        return res.status(500).json({ msg: "Something went wrong while deleting blog", error })
     }
 }
