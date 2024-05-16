@@ -1,4 +1,4 @@
-import { PrismaClient, Role } from "@prisma/client";
+import { PrismaClient } from "@prisma/client";
 import { RequestHandler } from "express";
 
 const prisma = new PrismaClient()
