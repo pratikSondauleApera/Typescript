@@ -1,20 +1,7 @@
 import { PrismaClient, Role } from "@prisma/client";
 import { RequestHandler } from "express";
-// import multer from "multer"
 
 const prisma = new PrismaClient()
-
-// const storage = multer.diskStorage({
-//     destination: function (req, file, cb) {
-//         cb(null, './uploads');
-//     },
-//     filename: function (req, file, cb) {
-//         const uniqueImageName = `image-${Math.floor(Math.random() * 1E9)}-${file.originalname}`
-//         cb(null, uniqueImageName);
-//     }
-// })
-
-// export const upload = multer({ storage: storage })
 
 export const addBlog: RequestHandler = async (req, res) => {
     const userId = (req.user as { id: string }).id
@@ -57,5 +44,56 @@ export const addBlog: RequestHandler = async (req, res) => {
 
     } catch (error) {
         return res.status(500).json({ msg: "Something went wrong while adding blog", error })
+    }
+}
+
+export const editBlog: RequestHandler = async (req, res) => {
+    const blogId = req.params.id
+
+    const title = (req.body as { title: string }).title
+    const content = (req.body as { content: string }).content
+    const image = req.file?.filename
+
+    const userId = (req.user as { id: string }).id
+
+    const getUser = await prisma.user.findUnique({
+        where: {
+            id: userId
+        }
+    })
+
+    if (!getUser) {
+        return res.status(404).json({ error: "User not found" })
+    }
+
+    const getBlog = await prisma.blogPost.findUnique({
+        where: {
+            id: blogId
+        }
+    })
+
+    if (!getBlog) {
+        return res.status(404).json({ error: "Blog not found" })
+    }
+
+    try {
+        const blogData = {
+            title: title || getBlog.title,
+            image: image || getBlog.image,
+            content: content || getBlog.content,
+            updatedAt: new Date(),
+        }
+
+        const updateBlog = await prisma.blogPost.update({
+            where: {
+                id: getBlog.id
+            },
+            data: blogData
+        })
+
+        return res.status(200).json({ msg: "Updated blog successfully", updateBlog })
+
+    } catch (error) {
+        return res.status(500).json({ msg: "Something went wrong while editing blog", error })
     }
 }
