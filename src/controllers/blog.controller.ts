@@ -97,3 +97,30 @@ export const editBlog: RequestHandler = async (req, res) => {
         return res.status(500).json({ msg: "Something went wrong while editing blog", error })
     }
 }
+
+export const getUserBlog: RequestHandler = async (req, res) => {
+    const userId = (req.user as { id: string }).id
+
+    const getUser = await prisma.user.findUnique({
+        where: {
+            id: userId
+        }
+    })
+
+    if (!getUser) {
+        return res.status(404).json({ error: "User not found" })
+    }
+
+    try {
+        const getUserBlog = await prisma.blogPost.findMany({
+            where: {
+                authorId: getUser.id
+            }
+        })
+
+        return res.status(200).json({ msg: "Blog found successfully", getUserBlog })
+
+    } catch (error) {
+        return res.status(500).json({ msg: "Something went wrong while fetching blog", error })
+    }
+}
