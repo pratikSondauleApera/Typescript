@@ -8,6 +8,8 @@ ENV DATABASE_URL ''
 
 ENV JWT_SECRET ''
 
+ENV FILEPATH ''
+
 COPY package*.json ./
 
 RUN npm install
