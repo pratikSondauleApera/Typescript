@@ -1,5 +1,6 @@
 import { PrismaClient } from "@prisma/client";
 import { RequestHandler } from "express";
+import * as fs from 'fs-extra';
 
 const prisma = new PrismaClient()
 
@@ -9,13 +10,15 @@ export const addBlog: RequestHandler = async (req, res) => {
 
     const content = (req.body as { content: string }).content
 
-    if (!title || !content) {
-        return res.status(400).json({ error: "Title and Content is required" })
-    }
+    const filePath = process.env.FILEPATH
 
     const image = req.file?.filename
 
-    console.log("File ", req.file)
+    if (!title || !content) {
+        await fs.unlink(`${filePath}${image}`)
+        return res.status(400).json({ error: "Title and Content is required" })
+    }
+
 
     const user = await prisma.user.findUnique({
         where: {
@@ -24,6 +27,7 @@ export const addBlog: RequestHandler = async (req, res) => {
     })
 
     if (!user) {
+        await fs.unlink(`${filePath}${image}`)
         return res.status(404).json({ error: "User not found" })
     }
 
@@ -43,6 +47,7 @@ export const addBlog: RequestHandler = async (req, res) => {
         return res.status(201).json({ msg: "Blog posted successfully", addBlog })
 
     } catch (error) {
+        await fs.unlink(`${filePath}${image}`)
         return res.status(500).json({ msg: "Something went wrong while adding blog", error })
     }
 }
@@ -54,6 +59,8 @@ export const editBlog: RequestHandler = async (req, res) => {
     const content = (req.body as { content: string }).content
     const image = req.file?.filename
 
+    const filePath = process.env.FILEPATH
+
     const userId = (req.user as { id: string }).id
 
     const getUser = await prisma.user.findUnique({
@@ -63,6 +70,7 @@ export const editBlog: RequestHandler = async (req, res) => {
     })
 
     if (!getUser) {
+        await fs.unlink(`${filePath}${image}`)
         return res.status(404).json({ error: "User not found" })
     }
 
@@ -73,6 +81,7 @@ export const editBlog: RequestHandler = async (req, res) => {
     })
 
     if (!getBlog) {
+        await fs.unlink(`${filePath}${image}`)
         return res.status(404).json({ error: "Blog not found" })
     }
 
@@ -94,6 +103,7 @@ export const editBlog: RequestHandler = async (req, res) => {
         return res.status(200).json({ msg: "Updated blog successfully", updateBlog })
 
     } catch (error) {
+        await fs.unlink(`${filePath}${image}`)
         return res.status(500).json({ msg: "Something went wrong while editing blog", error })
     }
 }
