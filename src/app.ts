@@ -7,6 +7,9 @@ const app = express()
 const PORT = process.env.PORT
 
 app.use(express.json());
+
+app.get('/', (req, res) => { res.send("Hello World!!") })
+
 app.use('/user', userRouter)
 app.use('/blog', blogRouter)
 app.use('/admin', adminRouter)

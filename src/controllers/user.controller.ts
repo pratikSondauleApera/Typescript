@@ -1,6 +1,6 @@
-import { PrismaClient, Role } from "@prisma/client";
-import { RequestHandler } from "express";
-import bcrypt from "bcryptjs"
+import { PrismaClient, Role } from "@prisma/client"
+import { RequestHandler } from "express"
+import { Md5 } from "ts-md5";
 import jwt from "jsonwebtoken"
 
 const prisma = new PrismaClient()
@@ -27,7 +27,7 @@ export const signUp: RequestHandler = async (req, res) => {
 
     try {
 
-        const hashedPassword = await bcrypt.hash(password, 10)
+        const hashedPassword = Md5.hashStr(password)
 
         const userData = {
             firstName,
@@ -41,7 +41,7 @@ export const signUp: RequestHandler = async (req, res) => {
             data: userData
         })
 
-        return res.status(201).json({ msg: "User registered successfully", registerUser })
+        return res.status(201).json({ msg: "User registered successfully" })
 
     } catch (error) {
         return res.status(500).json({ msg: "Something went wrong while registering a user", error })
@@ -68,9 +68,9 @@ export const signIn: RequestHandler = async (req, res) => {
             res.status(404).json({ error: "User does not exist" })
         }
 
-        const isMatch = await bcrypt.compare(password, user!.password);
+        const hashedPassword = Md5.hashStr(password)
 
-        if (!isMatch) {
+        if (user?.password !== hashedPassword) {
             res.status(401).json({ error: "Invalid credentials" })
         }
 
