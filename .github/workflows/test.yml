@@ -19,8 +19,8 @@ jobs:
 
     - name: Build docker image
       run: |
-        sudo docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/blogapp .
-
+        sudo docker build -t pratiksondaule/blogapp .
+chand
     - name: Push docker image
       run: |
-        sudo docker push ${{ secrets.DOCKERHUB_USERNAME }}/blogapp
+        sudo docker push pratiksondaule/blogapp
