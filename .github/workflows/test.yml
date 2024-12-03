@@ -20,7 +20,7 @@ jobs:
     - name: Build docker image
       run: |
         sudo docker build -t pratiksondaule/blogapp .
-chand
+
     - name: Push docker image
       run: |
         sudo docker push pratiksondaule/blogapp
